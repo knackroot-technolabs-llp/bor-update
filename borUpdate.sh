@@ -13,12 +13,15 @@ git_version=$(curl -s "$api_url" | jq -r '.tag_name')
 echo "Latest GitHub release version is: $git_version"
 
 # Compare local and GitHub release versions
-if [ "$local_version" != "$git_version" ]; then
+if [ "v$local_version" != "$git_version" ]; then
     echo "Versions mismatch. Deploying new version..."
 
     # Use curl to deploy the new version
-    deploy_command="curl -L https://raw.githubusercontent.com/maticnetwork/install/main/bor.sh | bash -s $git_version matic sentry"
+    deploy_command="curl -L https://raw.githubusercontent.com/maticnetwork/install/main/bor.sh | bash -s $git_version mainnet sentry"
     eval "$deploy_command"
+
+    # restart bor service
+    service bor restart
 else
     echo "Versions match. No deployment needed."
 fi
